@@ -6,7 +6,7 @@ import base64
 def call_ai(content, writer, audiences, creativity_level=0):
 
     client = anthropic.Anthropic(
-        api_key="api-key",
+        api_key="key",
     )
 
     message = client.messages.create(
@@ -126,6 +126,15 @@ def main():
         #     st.write(a)
         # st.write(selected_audience)
 
+        st.markdown("<hr>", unsafe_allow_html=True) 
+
+        st.markdown("""
+        <style>
+        .st-emotion-cache-hc3laj {
+            width: 100%;
+        }
+        </style> """, unsafe_allow_html=True)
+
         create_content_button = st.button("Create")
 
         if create_content_button:
@@ -144,6 +153,7 @@ def main():
 
                     created_content = generate_ipsum()
 
+        
 
 
 
@@ -154,12 +164,12 @@ def main():
 
 
     # Displaying generated content with expanders
-    if created_content != "null":
+    if len(created_content) > 0:
         for idx, text in enumerate(created_content):
             expander_title = f"Content {idx + 1}"
             expander = st.expander(expander_title)
             # expander.write(text)
-            expander.text_area(f"Improve Content {idx + 1}", value=uploaded_text, height=200)
+            updated_text = expander.text_area(f"Improve Content {idx + 1}", value=text, height=200)
 
             expander_download_button = expander.download_button(f"Download Content {idx + 1}", text)
 
