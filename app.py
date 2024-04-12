@@ -1,5 +1,6 @@
 import streamlit as st
 import anthropic
+import random
 import base64
 
 
@@ -27,24 +28,23 @@ def call_ai(content, writer, audiences, creativity_level=0):
     )
     return message.content.text
 
-def generate_content(content, writers=["David Ogilvy"], audiences=["IT Staff"], creativity_level=0):
-    results = []
-
-    for writer in writers:
-        result = call_ai(content, writer, audiences, creativity_level)
-        results.append(result)
-
-    return results
-
-import random
-
-def generate_ipsum():
-
-    size = random.randint(3, 7)
-
-    ipsum_array = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."] * size
+def generate_content(content, writers=["David Ogilvy"], audiences=["IT Staff"], creativity_level=0, api_key="null"):
     
-    return ipsum_array
+    if api_key != "null":
+        results = []
+
+        for writer in writers:
+            result = call_ai(content, writer, audiences, creativity_level)
+            results.append(result)
+
+        return results
+    
+    else:
+        size = random.randint(3, 7)
+
+        ipsum_array = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."] * size
+        
+        return ipsum_array
 
 
 
@@ -148,12 +148,12 @@ def main():
                 if uploaded_text != "||" and uploaded_text != "":
                     content = uploaded_text
 
-                    created_content = generate_ipsum()
+                    created_content = generate_content(api_key)
 
                 elif pasted_text != "||":
                     content = pasted_text
 
-                    created_content = generate_ipsum()
+                    created_content = generate_content(api_key)
 
         
 
