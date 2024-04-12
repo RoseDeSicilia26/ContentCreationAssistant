@@ -121,7 +121,7 @@ def main():
         #     st.write(a)
         # st.write(selected_audience)
 
-
+        st.markdown("<hr>", unsafe_allow_html=True) 
 
         ## ------------------------------------------------------------------------ ##
 
