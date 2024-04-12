@@ -31,11 +31,8 @@ def generate_content(content, writers=["David Ogilvy"], audiences=["IT Staff"], 
     results = []
 
     for writer in writers:
-        for audience in audiences:
-
-            # Call the AI for each combination of writer and audience
-            result = call_ai(content, writer, audience, creativity_level)
-            results.append(result)
+        result = call_ai(content, writer, audiences, creativity_level)
+        results.append(result)
 
     return results
 
