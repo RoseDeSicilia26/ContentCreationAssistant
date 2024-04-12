@@ -4,10 +4,10 @@ import random
 import base64
 
 
-def call_ai(content, writer, audiences, creativity_level=0):
+def call_ai(api_key, content, writer, audiences, creativity_level=0):
 
     client = anthropic.Anthropic(
-        api_key="key",
+        api_key=api_key,
     )
 
     message = client.messages.create(
@@ -30,7 +30,14 @@ def call_ai(content, writer, audiences, creativity_level=0):
 
 def generate_content(content, writers=["David Ogilvy"], audiences=["IT Staff"], creativity_level=0, api_key="null"):
     
-    if api_key != "null":
+    if api_key == "null":
+        size = random.randint(3, 7)
+
+        ipsum_array = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."] * size
+        
+        return ipsum_array
+    
+    else:
         results = []
 
         for writer in writers:
@@ -39,12 +46,7 @@ def generate_content(content, writers=["David Ogilvy"], audiences=["IT Staff"], 
 
         return results
     
-    else:
-        size = random.randint(3, 7)
-
-        ipsum_array = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."] * size
         
-        return ipsum_array
 
 
 
