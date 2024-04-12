@@ -121,7 +121,16 @@ def main():
         #     st.write(a)
         # st.write(selected_audience)
 
+
+
+        ## ------------------------------------------------------------------------ ##
+
+        st.title("Input Claude API Key")
+        api_key = st.text_input("Enter your api key here")
+        
         st.markdown("<hr>", unsafe_allow_html=True) 
+
+        ## ------------------------------------------------------------------------ ##
 
         st.markdown("""
         <style>
@@ -129,14 +138,7 @@ def main():
             width: 100%;
         }
         </style> """, unsafe_allow_html=True)
-
-        ## ------------------------------------------------------------------------ ##
-
-        st.title("Input Claude API Key")
-        api_key = st.text_input("Enter your api key here")
-
-        ## ------------------------------------------------------------------------ ##
-
+        
         create_content_button = st.button("Create")
 
         if create_content_button:
