@@ -28,9 +28,9 @@ def call_ai(api_key, content, writer, audiences, creativity_level=0):
     )
     return message.content.text
 
-def generate_content(content, writers=["David Ogilvy"], audiences=["IT Staff"], creativity_level=0, api_key="null"):
+def generate_content(content, writers=["David Ogilvy"], audiences=["IT Staff"], creativity_level=0, api_key=""):
     
-    if api_key == "null":
+    if api_key == "":
         size = random.randint(3, 7)
 
         ipsum_array = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."] * size
@@ -41,7 +41,7 @@ def generate_content(content, writers=["David Ogilvy"], audiences=["IT Staff"], 
         results = []
 
         for writer in writers:
-            result = call_ai(content, writer, audiences, creativity_level)
+            result = call_ai(content, writer, audiences, creativity_level, api_key)
             results.append(result)
 
         return results
@@ -57,6 +57,7 @@ def main():
         created_content = []
         uploaded_text = ""
         pasted_text = ""
+        api_key=""
 
         st.title("Content Creation Assistant")
 
