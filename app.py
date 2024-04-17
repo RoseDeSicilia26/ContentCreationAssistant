@@ -1,233 +1,167 @@
 import streamlit as st
-import anthropic
 import random
-import base64
 
+def verify_user_input():
+    None
 
-def call_ai(api_key, content, writer, audiences, creativity_level=0):
+def generate_content(): 
+    st.session_state.clicked = True
 
-    client = anthropic.Anthropic(
-        api_key=api_key,
-    )
+    size = random.randint(3, 7)
 
-    message = client.messages.create(
-        model="claude-3-opus-20240229",
-        temperature=creativity_level,
-        system= f"From the perspective of {writer}, write an article for an audience of {audiences} based on the upcoming content.",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"From the perspective of {writer}, write an article for an audience of {audiences} based on the following content: {content}"
-                    }
-                ]
-            }
-        ]
-    )
-    return message.content.text
+    content = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."] * size
 
-def generate_content(content, writers=["David Ogilvy"], audiences=["IT Staff"], creativity_level=0, api_key=""):
-    
-    if api_key == "":
-        size = random.randint(3, 7)
-
-        ipsum_array = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."] * size
-        
-        return ipsum_array
-    
-    else:
-        results = []
-
-        for writer in writers:
-            result = call_ai(content, writer, audiences, creativity_level, api_key)
-            results.append(result)
-
-        return results
-    
-        
-
-
+    st.session_state["content"] = content
 
 def main():
-    
+
     with st.sidebar:
 
-        created_content = []
-        uploaded_text = ""
-        pasted_text = ""
-        api_key=""
+        data_expander = st.expander("Upload data")
 
-        st.title("Content Creation Assistant")
+        with data_expander:
+            ### File upload
+            uploaded_file = data_expander.file_uploader("Upload a text file", type=["txt"])
 
-        st.markdown("<h4>Upload your Content</h4>", unsafe_allow_html=True)
-        
-        # st.markdown("<br>", unsafe_allow_html=True)
+            if uploaded_file is not None:
+                uploaded_text = uploaded_file.getvalue().decode("utf-8")
 
-        # File upload
-        uploaded_file = st.file_uploader("Upload a text file", type=["txt"])
+                show_text = data_expander.checkbox("Show Uploaded Text")
 
-        if uploaded_file is not None:
-            uploaded_text = uploaded_file.getvalue().decode("utf-8")
+                if show_text:
+                    uploaded_text = data_expander.text_area("Edit Uploaded Text", value=uploaded_text, height=200)
 
-            show_text = st.checkbox("Show Uploaded Text")
-
-            if show_text:
-                uploaded_text = "||" + st.text_area("Edit Uploaded Text", value=uploaded_text, height=200)
-
-        st.markdown("<h4>OR</h4>", unsafe_allow_html=True)
+            data_expander.markdown("<h4>OR</h4>", unsafe_allow_html=True)
 
 
-        # File pasted
-        pasted_text = "||" + st.text_area("Paste your content", height=200)
-
-        
+            ### File pasted
+            pasted_text = data_expander.text_area("Paste your content", height=120)
 
 
-        st.markdown("<hr>", unsafe_allow_html=True)
+            ### WRITERS
+            # Initialize session state if not already initialized
+            if "writers" not in st.session_state:
+                st.session_state["writers"] = ["Add", "Hello"]
+            if "selected_writers" not in st.session_state:
+                st.session_state["selected_writers"] = []
+
+            # Multiselect for selecting writers
+            st.session_state.selected_writers = data_expander.multiselect(
+                "Select writers:",
+                st.session_state.writers,
+                default=[],  # Set default to an empty list to avoid NoneType error
+                placeholder="Choose an option"
+            )
+
+            # If "Add" is selected, allow the user to enter a new writer
+            if "Add" in st.session_state.selected_writers:
+                new_writer = data_expander.text_input("Enter new writer:")
+                if new_writer:
+                    st.session_state.writers.append(new_writer)
+                    st.session_state.selected_writers.append(new_writer)
+
+            # data_expander.write(st.session_state["writers"])
+            # data_expander.write(st.session_state["selected_writers"])
 
 
-        ## ------------------------------------------------------------------------ ##
+            ### TONE
+            # Initialize session state if not already initialized
+            if "tone" not in st.session_state:
+                st.session_state["tone"] = ["professional", "Add"]
+            if "selected_tone" not in st.session_state:
+                st.session_state["selected_tone"] = []
 
-        st.markdown("<h3>Create your content</h3>", unsafe_allow_html=True)
+            # Multiselect for selecting writers
+            st.session_state.selected_tone = data_expander.multiselect(
+                "Select tone:",
+                st.session_state.tone,
+                default=[],  # Set default to an empty list to avoid NoneType error
+                placeholder="Choose an option"
+            )
 
-        writers = ["Gary C Halbert", "Joseph Sugarman", "David Ogilvy", "Other"]
+            # If "Add" is selected, allow the user to enter a new writer
+            if "Add" in st.session_state.selected_tone:
+                new_tone = data_expander.text_input("Enter new tone:")
+                if new_tone:
+                    st.session_state.tone.append(new_tone)
+                    st.session_state.selected_tone.append(new_tone)
 
-        # Multiselect for selecting multiple writers
-        selected_writers = st.multiselect("Select writers:", writers)
-
-        if "Other" in selected_writers:
-            new_writer = st.text_input("Enter new writer:")
-            if new_writer:
-                writers.append(new_writer)
-
-        # # Display selected writers
-        # st.write("Selected Writers:")
-        # for w in selected_writers:
-        #     st.write(w)
-        # st.write(selected_writers)
-       
-        audience = ["IT Technician", "IT Technician", "IT Technician", "Other"]
-
-        # Multiselect for selecting multiple writers
-        selected_audience = st.multiselect("Select audience:", audience)
-
-        if "Other" in selected_audience:
-            new_audience = st.text_input("Enter new audience:")
-            if new_audience:
-                audience.append(new_audience)
-
-        # # Display selected writers
-        # st.write("Selected adueince:")
-        # for a in selected_audience:
-        #     st.write(a)
-        # st.write(selected_audience)
-
-        st.markdown("<hr>", unsafe_allow_html=True) 
-
-        ## ------------------------------------------------------------------------ ##
-
-        st.title("Input Claude API Key")
-        api_key = st.text_input("Enter your api key here")
-        
-        st.markdown("<hr>", unsafe_allow_html=True) 
-
-        ## ------------------------------------------------------------------------ ##
-
-        st.markdown("""
-        <style>
-        .st-emotion-cache-hc3laj {
-            width: 100%;
-        }
-        </style> """, unsafe_allow_html=True)
-        
-        create_content_button = st.button("Create")
-
-        if create_content_button:
-            #st.write("please upload")
-            if (uploaded_text == "||" or uploaded_text == "") and (pasted_text == "||" or pasted_text == ""):
-                st.error("Please upload or paste content before creating.")
-                
-            else:
-                if uploaded_text != "||" and uploaded_text != "":
-                    content = uploaded_text
-
-                    created_content = generate_content(api_key)
-
-                elif pasted_text != "||":
-                    content = pasted_text
-
-                    created_content = generate_content(api_key)
-
-        
+            # data_expander.write(st.session_state["tone"])
+            # data_expander.write(st.session_state["selected_tone"])
 
 
+        ### STEPS
+        steps_expander = st.expander("Set up processing steps")
 
-    ## ------------------------------------------------------------------------ ##
+        with steps_expander:
+
+            # add the key choices_len to the session_state
+            if "n_steps" not in st.session_state:
+                st.session_state["n_steps"] = 1
+
+            if "instruction_options" not in st.session_state:
+                st.session_state["instruction_options"] = ["Step 1", "Step 2", "Step 3"]
+
+            if "sorted_selected_instructions" not in st.session_state:
+                st.session_state["sorted_selected_instructions"] = [None] * 20
+            
+
+            instructions = st.container()
+            buttons = st.container()
+
+            with buttons:
+                add, submit, remove = st.columns((1, 1, 1))
+                with add:
+                    if st.button("➕"):
+                        st.session_state["n_steps"] += 1
+
+                with submit:
+                    st.button("submit")
+
+                with remove:
+                    if st.button("➖︎") and st.session_state["n_steps"] > 1:
+                        st.session_state["n_steps"] -= 1
+                        st.session_state.pop(f'{st.session_state["n_steps"]}')
+
+            for x in range(st.session_state.n_steps):
+                value = instructions.multiselect(f"Step {x+1}", st.session_state.instruction_options, placeholder="Select an instruction", key=f"{x+1}")
+                if value is not None:
+                    st.session_state.sorted_selected_instructions[x] = value
+
+            # Create a form for adding a custom instruction
+            with steps_expander.form("add_instruction_form"):
+                new_instruction = st.text_area("Add a custom instruction")
+                submit_button = st.form_submit_button("Add")
+            
+                if submit_button:
+                    if new_instruction:
+                        # st.session_state["instruction_options"] += [new_instruction]
+                        st.session_state.instruction_options.append(new_instruction)
+                        st.rerun()
+
+            # st.write(st.session_state.sorted_selected_instructions)
+            # st.write(st.session_state.instruction_options)
 
 
-    st.header("Content")
+        ### GENERATE
+        if "clicked" not in st.session_state:
+            st.session_state.clicked = False
 
-
-    # Displaying generated content with expanders
-    if len(created_content) > 0:
-        for idx, text in enumerate(created_content):
-            expander_title = f"Content {idx + 1}"
-            expander = st.expander(expander_title)
-            # expander.write(text)
-            updated_text = expander.text_area(f"Improve Content {idx + 1}", value=text, height=200)
-
-            expander_download_button = expander.download_button(f"Download Content {idx + 1}", text)
+        st.button("Generate content", on_click=generate_content)
 
 
 
 
 
+    if "content" not in st.session_state:
+        st.session_state["content"] = []
 
-    # CSS
 
-    # st.markdown("""
-    #     <style>
-    #     .st-emotion-cache-hc3laj {
-    #         width: 100%;
-    #         color: green;
-    #         background-color: transparent;
-    #         border: 1px solid green;
-    #         padding: 5px 10px;
-    #         border-radius: 5px;
-    #     }
-    #     .st-emotion-cache-hc3laj:hover {
-    #         background-color: green;
-    #         color: white;
-    #         border-color: green;
-    #     }
-    #     .st-emotion-cache-hc3laj:active {
-    #         background-color: green;
-    #         border-color: green;
-    #         color:white;
-    #     }
-                
-
-    #     .st-emotion-cache-19rxjzo {
-    #     float: right;
-    #     color: green;
-    #     background-color: transparent;
-    #     border: 1px solid green;
-    #     padding: 5px 10px;
-    #     border-radius: 5px;
-    #     }
-    #     .st-emotion-cache-19rxjzo:hover {
-    #         background-color: green;
-    #         color: white;
-    #         border-color: green;
-    #     }
-    #     .st-emotion-cache-19rxjzo:active {
-    #         background-color: green;
-    #         border-color: green;
-    #     }
-    #     </style>
-    # """, unsafe_allow_html=True)
+    content_array = st.session_state.content
+    for idx, content in enumerate(content_array):
+        expander = st.expander(f"Content {idx + 1}")
+        expander.write(content)
+        update_text = expander.text_area(f"Improve Content {idx + 1}", value=content, height=200)
 
 
 
